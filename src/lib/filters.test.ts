@@ -28,6 +28,7 @@ function goal(overrides: Partial<Goal>): Goal {
     technique: 'Normal',
     playPattern: 'Regular Play',
     xg: 0.3,
+    assist: null,
     ...overrides,
   }
 }

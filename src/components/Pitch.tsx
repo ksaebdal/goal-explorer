@@ -1,4 +1,4 @@
-import { memo } from 'react'
+import { memo, useId } from 'react'
 import { GOAL_CENTER, PITCH_LENGTH, PITCH_WIDTH } from '../lib/geometry.ts'
 import type { Goal } from '../lib/types.ts'
 
@@ -11,19 +11,53 @@ interface PitchProps {
 // The SVG uses the same coordinate system as StatsBomb (120 x 80), so a
 // goal at location [108, 40] is simply drawn at x=108, y=40. No maths needed!
 export function Pitch({ goals, selected, onSelect }: PitchProps) {
+  // SVG ids are global to the whole page; useId() makes ours unique.
+  const arrowId = useId()
   return (
-    <svg className="pitch" viewBox={`-2 -2 ${PITCH_LENGTH + 4} ${PITCH_WIDTH + 4}`} role="img" aria-label="Football pitch with goal locations. Use the table below to select goals with the keyboard.">
-      <PitchMarkings />
-      <GoalDots goals={goals} onSelect={onSelect} />
+    <figure className="pitch-figure">
+      <svg
+        className="pitch"
+        viewBox={`-2 -2 ${PITCH_LENGTH + 4} ${PITCH_WIDTH + 4}`}
+        role="img"
+        aria-label="Football pitch with goal locations. Use the table below to select goals with the keyboard."
+      >
+        <defs>
+          {/* An arrowhead that lines can use via markerEnd. */}
+          <marker id={arrowId} viewBox="0 0 10 10" refX={8} refY={5} markerWidth={4} markerHeight={4} orient="auto">
+            <path d="M 0 0 L 10 5 L 0 10 z" className="assist-arrowhead" />
+          </marker>
+        </defs>
+        <PitchMarkings />
+        <GoalDots goals={goals} onSelect={onSelect} />
 
-      {/* The selected goal is drawn on top. pointer-events="none" lets clicks pass through to the dots below. */}
-      {selected && (
-        <g pointerEvents="none">
-          <line className="shot-line" x1={selected.x} y1={selected.y} x2={GOAL_CENTER.x} y2={GOAL_CENTER.y} />
-          <circle className="goal-dot selected" cx={selected.x} cy={selected.y} r={1.6} />
-        </g>
-      )}
-    </svg>
+        {/* The selected goal is drawn on top. pointer-events="none" lets clicks pass through to the dots below. */}
+        {selected && (
+          <g pointerEvents="none">
+            {selected.assist && (
+              <circle className="assist-start" cx={selected.assist.fromX} cy={selected.assist.fromY} r={0.9} />
+            )}
+            <line className="shot-line" x1={selected.x} y1={selected.y} x2={GOAL_CENTER.x} y2={GOAL_CENTER.y} />
+            <circle className="goal-dot selected" cx={selected.x} cy={selected.y} r={1.6} />
+            {/* Drawn after the red dot so a tap-in's arrowhead isn't hidden under it (later = on top). */}
+            {selected.assist && (
+              <line
+                className="assist-line"
+                x1={selected.assist.fromX}
+                y1={selected.assist.fromY}
+                x2={selected.assist.toX}
+                y2={selected.assist.toY}
+                markerEnd={`url(#${arrowId})`}
+              />
+            )}
+          </g>
+        )}
+      </svg>
+      <figcaption className="legend">
+        <span><i className="swatch goal" /> Goal</span>
+        <span><i className="swatch selected" /> Selected goal</span>
+        <span><i className="swatch assist" /> Assist (pass)</span>
+      </figcaption>
+    </figure>
   )
 }
 

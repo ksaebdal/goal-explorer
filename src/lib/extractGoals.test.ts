@@ -65,6 +65,7 @@ describe('extractGoals', () => {
       technique: 'Normal',
       playPattern: 'Regular Play',
       xg: 0.123,
+      assist: null,
     })
   })
 
@@ -112,5 +113,80 @@ describe('extractGoals', () => {
     ])
     expect(goal.player).toBe('Unknown')
     expect(goal.xg).toBeNull()
+  })
+})
+
+describe('extractGoals – assists', () => {
+  // Helper that builds a pass event; `pass` fields override the defaults.
+  function pass(fields: Partial<NonNullable<RawEvent['pass']>> = {}): RawEvent {
+    return {
+      id: 'pass-1',
+      period: 1,
+      minute: 10,
+      second: 2,
+      type: { name: 'Pass' },
+      team: { id: 20, name: 'Bayer Leverkusen' },
+      player: { name: 'Alejandro Grimaldo' },
+      location: [90, 70],
+      play_pattern: { name: 'Regular Play' },
+      pass: { end_location: [110, 42], height: { name: 'High Pass' }, ...fields },
+    }
+  }
+
+  // A goal whose key_pass_id points at the pass above.
+  function assistedGoal(): RawEvent {
+    const base = shot()
+    return { ...base, shot: { ...base.shot!, key_pass_id: 'pass-1' } }
+  }
+
+  it('finds the assisting pass through key_pass_id', () => {
+    const [goal] = extractGoals(match, [pass({ cross: true }), assistedGoal()])
+    expect(goal.assist).toEqual({
+      player: 'Alejandro Grimaldo',
+      fromX: 90,
+      fromY: 70,
+      toX: 110,
+      toY: 42,
+      kind: 'Cross',
+      height: 'High Pass',
+    })
+  })
+
+  it('has no assist when the shot has no key pass (e.g. a solo goal)', () => {
+    const [goal] = extractGoals(match, [pass(), shot()])
+    expect(goal.assist).toBeNull()
+  })
+
+  it('has no assist when the key pass id points at something that is not a pass', () => {
+    const notAPass = { ...pass(), type: { name: 'Carry' }, pass: undefined }
+    const [goal] = extractGoals(match, [notAPass, assistedGoal()])
+    expect(goal.assist).toBeNull()
+  })
+
+  it("names the assister 'Unknown' if the pass has no player", () => {
+    const [goal] = extractGoals(match, [{ ...pass(), player: undefined }, assistedGoal()])
+    expect(goal.assist?.player).toBe('Unknown')
+  })
+
+  it('has no assist when the key pass is missing from the events', () => {
+    const [goal] = extractGoals(match, [assistedGoal()])
+    expect(goal.assist).toBeNull()
+  })
+
+  it.each([
+    [{}, 'Pass'],
+    [{ cross: true }, 'Cross'],
+    [{ cut_back: true }, 'Cut-back'],
+    // Cut-backs are usually also flagged as crosses; the more specific label wins.
+    [{ cut_back: true, cross: true }, 'Cut-back'],
+    [{ through_ball: true }, 'Through Ball'],
+    [{ technique: { name: 'Through Ball' } }, 'Through Ball'],
+    // A set piece wins over "cross": a corner is more informative than "a cross".
+    [{ type: { name: 'Corner' }, cross: true }, 'Corner'],
+    // "Recovery" is a pass right after winning the ball - open play, not a set piece.
+    [{ type: { name: 'Recovery' } }, 'Pass'],
+  ])('labels pass %o as "%s"', (fields, kind) => {
+    const [goal] = extractGoals(match, [pass(fields), assistedGoal()])
+    expect(goal.assist?.kind).toBe(kind)
   })
 })

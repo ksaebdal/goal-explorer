@@ -27,6 +27,21 @@ export interface Goal {
   technique: string
   playPattern: string
   xg: number | null
+  /** The pass that set up the goal, or null (e.g. direct free kicks, penalties, solo goals). */
+  assist: Assist | null
+}
+
+export interface Assist {
+  player: string
+  /** Where the pass started and where it arrived, in pitch coordinates. */
+  fromX: number
+  fromY: number
+  toX: number
+  toY: number
+  /** e.g. "Cross", "Through Ball", "Cut-back", "Corner" or "Pass". */
+  kind: string
+  /** "Ground Pass", "Low Pass" or "High Pass". */
+  height: string
 }
 
 // --- The subset of the raw StatsBomb data that we actually read. ---
@@ -67,5 +82,16 @@ export interface RawEvent {
     type: Named
     technique: Named
     statsbomb_xg?: number
+    /** Id of the pass that led to this shot, if any. */
+    key_pass_id?: string
+  }
+  pass?: {
+    end_location: [number, number]
+    height: Named
+    type?: Named // set-piece passes: "Corner", "Free Kick", "Throw-in", ...
+    technique?: Named // older data marks through balls here
+    cross?: boolean
+    cut_back?: boolean
+    through_ball?: boolean
   }
 }

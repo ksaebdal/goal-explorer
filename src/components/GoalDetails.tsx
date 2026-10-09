@@ -34,6 +34,20 @@ export function GoalDetails({ goal }: { goal: Goal | undefined }) {
         <dd>
           {goal.shotType}, {goal.bodyPart}, {goal.technique}
         </dd>
+        <dt>Assist</dt>
+        <dd>
+          {goal.assist ? (
+            <>
+              {goal.assist.player}
+              <span className="muted">
+                {' '}
+                ({goal.assist.kind}, {goal.assist.height.toLowerCase()})
+              </span>
+            </>
+          ) : (
+            <span className="muted">None</span>
+          )}
+        </dd>
         <dt>Situation</dt>
         <dd>{goal.playPattern}</dd>
         <dt>xG</dt>

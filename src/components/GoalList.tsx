@@ -17,6 +17,7 @@ export function GoalList({ goals, selectedId, onSelect }: GoalListProps) {
           <tr>
             <th>Date</th>
             <th>Scorer</th>
+            <th>Assist</th>
             <th>Team</th>
             <th>Match</th>
             <th>Min</th>
@@ -38,6 +39,7 @@ export function GoalList({ goals, selectedId, onSelect }: GoalListProps) {
                   {g.player}
                 </button>
               </td>
+              <td>{g.assist?.player ?? '–'}</td>
               <td>{g.team}</td>
               <td>
                 {g.homeTeam} – {g.awayTeam}

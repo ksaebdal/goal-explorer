@@ -8,6 +8,7 @@
   --line: rgba(255, 255, 255, 0.85);
   --dot: #ffd84d;
   --accent: #e5484d;
+  --assist: #3b9eff;
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   color: var(--text);
   background: var(--bg);
@@ -42,6 +43,13 @@ h1 { margin: 0 0 4px; }
 .layout { display: grid; grid-template-columns: minmax(0, 3fr) minmax(240px, 1fr); gap: 16px; }
 @media (max-width: 800px) { .layout { grid-template-columns: 1fr; } }
 
+.pitch-figure { margin: 0; }
+.legend { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 8px; font-size: 13px; color: var(--muted); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.swatch { display: inline-block; width: 10px; height: 10px; border-radius: 50%; }
+.swatch.goal { background: var(--dot); }
+.swatch.selected { background: var(--accent); }
+.swatch.assist { background: var(--assist); }
 .pitch { width: 100%; background: var(--grass); border-radius: 8px; display: block; }
 .markings rect, .markings circle, .markings path, .markings line { fill: none; stroke: var(--line); stroke-width: 0.3; }
 .markings .spot { fill: var(--line); }
@@ -49,6 +57,9 @@ h1 { margin: 0 0 4px; }
 .goal-dot { fill: var(--dot); fill-opacity: 0.55; cursor: pointer; }
 .goal-dot:hover { fill-opacity: 1; }
 .goal-dot.selected { fill: var(--accent); fill-opacity: 1; stroke: white; stroke-width: 0.3; }
+.assist-line { stroke: var(--assist); stroke-width: 0.5; }
+.assist-arrowhead { fill: var(--assist); }
+.assist-start { fill: var(--assist); stroke: white; stroke-width: 0.3; }
 .shot-line { stroke: var(--accent); stroke-width: 0.4; stroke-dasharray: 1 0.6; }
 
 .details { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }

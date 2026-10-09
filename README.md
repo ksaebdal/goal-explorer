@@ -41,5 +41,6 @@ src/
 ## Notes on the data
 
 - StatsBomb uses a 120 × 80 yard pitch, and every event is recorded as if the team attacks towards x = 120. Distances are converted to metres.
+- A goal's assist is the pass its shot points to via `shot.key_pass_id` (about two thirds of goals have one). Penalties, direct free kicks and solo goals have none.
 - Own goals are separate event types (not shots) and are not plotted, so a match's score can be higher than its number of dots.
 - Team names sometimes differ between the match and event files (e.g. "Stade Malherbe Caen" vs "Caen"), so the scoring team is matched by id and named from the match file.

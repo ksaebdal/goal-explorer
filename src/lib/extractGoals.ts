@@ -1,5 +1,5 @@
 import { distanceToGoalMeters } from './geometry.ts'
-import type { Goal, RawEvent, RawMatch } from './types.ts'
+import type { Assist, Goal, RawEvent, RawMatch } from './types.ts'
 
 // Period 5 is the penalty shootout. Those "goals" don't count in the score,
 // so we leave them out.
@@ -14,8 +14,37 @@ function teamName(match: RawMatch, team: { id: number; name: string }): string {
   return team.name
 }
 
+const SET_PIECES = new Set(['Corner', 'Free Kick', 'Throw-in', 'Goal Kick', 'Kick Off'])
+
+/** Describes what kind of pass an assist was, most specific first. */
+function assistKind(pass: NonNullable<RawEvent['pass']>): string {
+  if (pass.type && SET_PIECES.has(pass.type.name)) return pass.type.name
+  if (pass.cut_back) return 'Cut-back'
+  if (pass.cross) return 'Cross'
+  if (pass.through_ball || pass.technique?.name === 'Through Ball') return 'Through Ball'
+  return 'Pass'
+}
+
+/** Finds the pass that set up a shot, using the shot's key_pass_id. */
+function findAssist(shot: RawEvent, eventsById: Map<string, RawEvent>): Assist | null {
+  const keyPassId = shot.shot?.key_pass_id
+  const pass = keyPassId ? eventsById.get(keyPassId) : undefined
+  if (!pass?.pass || !pass.location) return null
+  return {
+    player: pass.player?.name ?? 'Unknown',
+    fromX: pass.location[0],
+    fromY: pass.location[1],
+    toX: pass.pass.end_location[0],
+    toY: pass.pass.end_location[1],
+    kind: assistKind(pass.pass),
+    height: pass.pass.height.name,
+  }
+}
+
 /** Turns one match + its events into a list of Goal objects. */
 export function extractGoals(match: RawMatch, events: RawEvent[]): Goal[] {
+  // A Map gives fast lookup by id. Searching the ~3500-event array for every goal would be slower.
+  const eventsById = new Map(events.map((e) => [e.id, e]))
   return events
     .filter(
       (e) =>
@@ -53,6 +82,7 @@ export function extractGoals(match: RawMatch, events: RawEvent[]): Goal[] {
         technique: shot.technique.name,
         playPattern: e.play_pattern.name,
         xg: shot.statsbomb_xg !== undefined ? Math.round(shot.statsbomb_xg * 1000) / 1000 : null,
+        assist: findAssist(e, eventsById),
       }
     })
 }
