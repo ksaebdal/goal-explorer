@@ -1,0 +1,25 @@
+# Runs on every push and pull request: typecheck, lint, unit tests and a
+# production build. It needs no football data (that is never in this repo),
+# and it publishes nothing - it only tells you whether the code is healthy.
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci # installs exactly the versions in package-lock.json
+      - run: npm run lint
+      - run: npm test
+      - run: npm run build # includes the typecheck (tsc -b)

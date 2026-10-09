@@ -1,7 +1,11 @@
-// Reads the raw StatsBomb data in ../data and writes:
+// Reads the raw StatsBomb open data and writes:
 //   public/goals.json        every goal (the app loads this at start)
 //   public/shots/<name>.json the missed shots of one league + season (loaded on demand)
 // Run with: npm run build:data   (takes a minute or two - it reads ~12 GB)
+//
+// Where the data is: set STATSBOMB_DATA_DIR to the "data" folder of your copy of
+// https://github.com/statsbomb/open-data, or clone it next to this project
+// (../open-data/data), which is the default.
 import { existsSync } from 'node:fs'
 import { mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises'
 import path from 'node:path'
@@ -13,7 +17,7 @@ import { missedShotsFileName } from '../src/lib/shotFiles.ts'
 import type { RawEvent, RawMatch, Shot } from '../src/lib/types.ts'
 
 const here = path.dirname(fileURLToPath(import.meta.url))
-const DATA_DIR = path.resolve(here, '../../data')
+const DATA_DIR = path.resolve(process.env.STATSBOMB_DATA_DIR ?? path.join(here, '../../open-data/data'))
 const GOALS_FILE = path.resolve(here, '../public/goals.json')
 const SHOTS_DIR = path.resolve(here, '../public/shots')
 
@@ -48,6 +52,14 @@ async function countUnlistedEventFiles(matches: RawMatch[]): Promise<number> {
 }
 
 async function main() {
+  if (!existsSync(path.join(DATA_DIR, 'matches'))) {
+    throw new Error(
+      `No StatsBomb data found in ${DATA_DIR}.\n` +
+        'Clone https://github.com/statsbomb/open-data next to this project, or set STATSBOMB_DATA_DIR ' +
+        'to its "data" folder (see README.md).',
+    )
+  }
+  console.log(`Reading StatsBomb data from ${DATA_DIR}`)
   const matches = await loadAllMatches()
   console.log(`Found ${matches.length} matches`)
 

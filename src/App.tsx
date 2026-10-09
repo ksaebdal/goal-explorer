@@ -1,4 +1,5 @@
 import { useCallback, useDeferredValue, useMemo, useState } from 'react'
+import { Attribution } from './components/Attribution.tsx'
 import { FiltersBar } from './components/FiltersBar.tsx'
 import { OutcomeLegend } from './components/OutcomeLegend.tsx'
 import { Pitch } from './components/Pitch.tsx'
@@ -30,6 +31,7 @@ export default function App() {
       {(data.status === 'idle' || data.status === 'loading') && <p>Loading goals…</p>}
       {data.status === 'error' && <p className="error">Could not load goals: {data.message}</p>}
       {data.status === 'ready' && <Explorer goals={data.data} />}
+      <Attribution />
     </main>
   )
 }

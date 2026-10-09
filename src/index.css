@@ -148,3 +148,11 @@ button.bar-row:focus-visible { outline: 2px solid var(--accent); outline-offset:
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
   overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
 }
+
+/* ---------- Data attribution (required by the StatsBomb data terms) ---------- */
+.attribution {
+  display: flex; align-items: center; gap: 12px; margin-top: 32px; padding-top: 16px;
+  border-top: 1px solid var(--border); font-size: 13px; color: var(--muted);
+}
+.attribution p { margin: 0; }
+.attribution a { color: inherit; }
