@@ -3,6 +3,7 @@ import { FiltersBar } from './components/FiltersBar.tsx'
 import { GoalDetails } from './components/GoalDetails.tsx'
 import { GoalList } from './components/GoalList.tsx'
 import { Pitch } from './components/Pitch.tsx'
+import { StatsPanel } from './components/StatsPanel.tsx'
 import { availableOptions, EMPTY_FILTERS, filterGoals, type GoalFilters } from './lib/filters.ts'
 import type { Goal } from './lib/types.ts'
 import { useGoals } from './lib/useGoals.ts'
@@ -51,6 +52,13 @@ function Explorer({ goals }: { goals: Goal[] }) {
   // dots on the pitch don't have to redraw when only the selection changes.
   const selectGoal = useCallback((goal: Goal) => setSelectedId(goal.id), [])
 
+  // Clicking a top scorer filters on exactly that player. Using the "updater" form of
+  // setFilters (f => ...) means this function never changes, which keeps the memo'd panel cheap.
+  const pickScorer = useCallback((player: string) => {
+    setFilters((f) => ({ ...f, player, playerSearch: '' }))
+    setSelectedId(null)
+  }, [])
+
   const selectedGoal = filtered.find((g) => g.id === selectedId)
 
   return (
@@ -63,6 +71,7 @@ function Explorer({ goals }: { goals: Goal[] }) {
         <Pitch goals={filtered} selected={selectedGoal} onSelect={selectGoal} />
         <GoalDetails goal={selectedGoal} />
       </div>
+      <StatsPanel goals={filtered} onPickScorer={pickScorer} />
       <GoalList goals={filtered} selectedId={selectedGoal?.id ?? null} onSelect={selectGoal} />
     </>
   )

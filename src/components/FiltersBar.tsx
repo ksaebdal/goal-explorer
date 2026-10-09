@@ -30,8 +30,10 @@ export function FiltersBar({ filters, onChange, competitions, seasons, teams }: 
         <input
           type="search"
           placeholder="e.g. Messi"
-          value={filters.playerSearch}
-          onChange={(e) => onChange({ ...filters, playerSearch: e.target.value })}
+          // Shows the exact player when one was picked from "Top scorers";
+          // typing switches back to free-text search.
+          value={filters.player || filters.playerSearch}
+          onChange={(e) => onChange({ ...filters, playerSearch: e.target.value, player: '' })}
         />
       </label>
     </div>

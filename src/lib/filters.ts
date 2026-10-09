@@ -4,7 +4,10 @@ export interface GoalFilters {
   competition: string // '' means "all"
   season: string
   team: string
+  /** Free-text search, matches any part of a name ("Pedro" matches "Pedro Neto"). */
   playerSearch: string
+  /** One exact player, e.g. after clicking a name in "Top scorers". */
+  player: string
 }
 
 export const EMPTY_FILTERS: GoalFilters = {
@@ -12,6 +15,7 @@ export const EMPTY_FILTERS: GoalFilters = {
   season: '',
   team: '',
   playerSearch: '',
+  player: '',
 }
 
 export function filterGoals(goals: Goal[], filters: GoalFilters): Goal[] {
@@ -21,6 +25,7 @@ export function filterGoals(goals: Goal[], filters: GoalFilters): Goal[] {
       (!filters.competition || g.competition === filters.competition) &&
       (!filters.season || g.season === filters.season) &&
       (!filters.team || g.team === filters.team) &&
+      (!filters.player || g.player === filters.player) &&
       (!search || g.player.toLowerCase().includes(search)),
   )
 }

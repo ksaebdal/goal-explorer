@@ -64,6 +64,15 @@ describe('filterGoals', () => {
   })
 })
 
+describe('filterGoals – exact player', () => {
+  const pedros = [goal({ id: 'p', player: 'Pedro' }), goal({ id: 'n', player: 'Pedro Neto' })]
+
+  it('matches only that exact name (unlike the free-text search)', () => {
+    expect(ids(filterGoals(pedros, { ...EMPTY_FILTERS, player: 'Pedro' }))).toEqual(['p'])
+    expect(ids(filterGoals(pedros, { ...EMPTY_FILTERS, playerSearch: 'Pedro' }))).toEqual(['p', 'n'])
+  })
+})
+
 describe('uniqueValues', () => {
   it('returns each value once, sorted', () => {
     expect(uniqueValues(goals, 'competition')).toEqual(['La Liga', 'Premier League'])
