@@ -13,33 +13,42 @@ Built with React, TypeScript and Vite, with unit tests in Vitest.
 
 ## Getting started
 
-You need [Node.js](https://nodejs.org/) 20 or newer, and git.
+You need [Node.js](https://nodejs.org/) 20.19+ or 22.12+ (tested with 22 and 23), and git. Plan for about 15 GB of disk space for the StatsBomb data; the files this project generates from it are about 70 MB.
 
 ```sh
-# 1. Get the StatsBomb open data (large: ~15 GB) next to this project
+# 1. Get the StatsBomb open data next to this project.
+#    --depth 1 skips the repository's history, which this project doesn't need.
 cd ..
-git clone https://github.com/statsbomb/open-data.git
+git clone --depth 1 https://github.com/statsbomb/open-data.git
 cd goal-explorer
 
 # 2. Install and generate the app's data files from it (~1-2 minutes)
 npm install
 npm run build:data
 
-# 3. Start the app and open http://localhost:5173
+# 3. Start the app and open the address it prints (usually http://localhost:5173)
 npm run dev
 ```
+
+`npm ci` works too: it installs exactly the versions in `package-lock.json`, which is what CI does.
 
 If your copy of the open data lives somewhere else, point the script at its `data` folder:
 
 ```sh
+# macOS / Linux
 STATSBOMB_DATA_DIR=/path/to/open-data/data npm run build:data
+```
+
+```powershell
+# Windows (PowerShell)
+$env:STATSBOMB_DATA_DIR="C:\path\to\open-data\data"; npm run build:data
 ```
 
 StatsBomb also asks every user of the data to register at [statsbomb.com/resource-centre](https://statsbomb.com/resource-centre).
 
 ### The StatsBomb logo
 
-The data terms require the StatsBomb logo on anything you publish based on the data, including screenshots. Download it from the [StatsBomb Media Pack](https://statsbomb.com/media-pack/) and save it as `public/statsbomb-logo.png`. The page footer shows it automatically; without it, only a text credit appears.
+The data terms require the StatsBomb logo on any analysis you publish based on the data (to be safe, include it on screenshots too). Download it from the [StatsBomb Media Pack](https://statsbomb.com/media-pack/) and save it, as a PNG image, at `public/statsbomb-logo.png`. Reload the page and the footer shows it; without it, only a text credit appears. The file is in `.gitignore`: the logo is StatsBomb's trademark and must not be committed to this repository.
 
 ## Scripts
 
@@ -100,6 +109,7 @@ The football data is © StatsBomb and is used under the **StatsBomb Public Data 
 
 - The data is for analysis and research; analysis and conclusions may be shared publicly.
 - Anything published from it must credit StatsBomb with **their logo**.
-- The data itself may **not be redistributed**, reproduced or provided to third parties, and may not be used commercially.
+- The data itself may **not be redistributed**, reproduced, edited or provided to third parties.
+- Neither the data nor any analysis derived from it may be used **commercially**.
 
 That is why this repository contains only code, and why the app is not hosted publicly: a public site would have to serve the generated data files to every visitor. Analysis and conclusions here are my own, not necessarily StatsBomb's.

@@ -28,5 +28,8 @@
     "vitest": "^3.2.7"
   },
   "license": "UNLICENSED",
-  "description": "Browse every goal and shot in the StatsBomb open data on a football pitch."
+  "description": "Browse every goal and shot in the StatsBomb open data on a football pitch.",
+  "engines": {
+    "node": "^20.19.0 || >=22.12.0"
+  }
 }
