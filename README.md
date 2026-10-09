@@ -34,6 +34,8 @@ src/
 │   ├── extractGoals.ts match + events → Goal[]
 │   ├── geometry.ts     pitch size, distance to goal
 │   ├── filters.ts      filtering and dropdown options
+│   ├── playerNames.ts  one consistent name per player (by id)
+│   ├── stats.ts        numbers for the stats panel
 │   └── useGoals.ts     React hook that loads goals.json
 └── components/     React UI: Pitch, FiltersBar, GoalDetails, GoalList
 ```
@@ -44,3 +46,4 @@ src/
 - A goal's assist is the pass its shot points to via `shot.key_pass_id` (about two thirds of goals have one). Penalties, direct free kicks and solo goals have none.
 - Own goals are separate event types (not shots) and are not plotted, so a match's score can be higher than its number of dots.
 - Team names sometimes differ between the match and event files (e.g. "Stade Malherbe Caen" vs "Caen"), so the scoring team is matched by id and named from the match file.
+- Players can also appear under several names (e.g. after marriage, or "Phil" vs "Philip Foden"), and two different players can share a name. `src/lib/playerNames.ts` gives every player id the name from its latest match and adds `(id N)` when two players share a name, so one name always means one player.

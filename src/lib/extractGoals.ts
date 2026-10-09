@@ -32,6 +32,7 @@ function findAssist(shot: RawEvent, eventsById: Map<string, RawEvent>): Assist |
   if (!pass?.pass || !pass.location) return null
   return {
     player: pass.player?.name ?? 'Unknown',
+    playerId: pass.player?.id ?? null,
     fromX: pass.location[0],
     fromY: pass.location[1],
     toX: pass.pass.end_location[0],
@@ -71,6 +72,7 @@ export function extractGoals(match: RawMatch, events: RawEvent[]): Goal[] {
         awayScore: match.away_score,
         team: teamName(match, e.team),
         player: e.player?.name ?? 'Unknown',
+        playerId: e.player?.id ?? null,
         period: e.period,
         minute: e.minute,
         second: e.second,

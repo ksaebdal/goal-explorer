@@ -14,6 +14,8 @@ export interface Goal {
   awayScore: number
   team: string
   player: string
+  /** StatsBomb's id for the player; null in the rare case the data has no player. */
+  playerId: number | null
   period: number
   minute: number
   second: number
@@ -33,6 +35,7 @@ export interface Goal {
 
 export interface Assist {
   player: string
+  playerId: number | null
   /** Where the pass started and where it arrived, in pitch coordinates. */
   fromX: number
   fromY: number
@@ -73,7 +76,7 @@ export interface RawEvent {
   second: number
   type: Named
   team: NamedWithId
-  player?: Named
+  player?: NamedWithId
   location?: [number, number]
   play_pattern: Named
   shot?: {

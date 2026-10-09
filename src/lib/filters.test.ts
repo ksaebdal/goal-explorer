@@ -17,6 +17,7 @@ function goal(overrides: Partial<Goal>): Goal {
     awayScore: 0,
     team: 'Barcelona',
     player: 'Lionel Messi',
+    playerId: 1,
     period: 1,
     minute: 1,
     second: 0,

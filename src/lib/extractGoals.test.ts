@@ -23,7 +23,7 @@ function shot(overrides: Partial<RawEvent> = {}, outcome = 'Goal'): RawEvent {
     second: 5,
     type: { name: 'Shot' },
     team: { id: 20, name: 'Bayer Leverkusen' },
-    player: { name: 'Florian Wirtz' },
+    player: { id: 8, name: 'Florian Wirtz' },
     location: [108, 40],
     play_pattern: { name: 'Regular Play' },
     shot: {
@@ -54,6 +54,7 @@ describe('extractGoals', () => {
       awayScore: 1,
       team: 'Bayer Leverkusen',
       player: 'Florian Wirtz',
+      playerId: 8,
       period: 1,
       minute: 10,
       second: 5,
@@ -112,6 +113,7 @@ describe('extractGoals', () => {
       { ...base, player: undefined, shot: { ...base.shot!, statsbomb_xg: undefined } },
     ])
     expect(goal.player).toBe('Unknown')
+    expect(goal.playerId).toBeNull()
     expect(goal.xg).toBeNull()
   })
 })
@@ -126,7 +128,7 @@ describe('extractGoals – assists', () => {
       second: 2,
       type: { name: 'Pass' },
       team: { id: 20, name: 'Bayer Leverkusen' },
-      player: { name: 'Alejandro Grimaldo' },
+      player: { id: 7, name: 'Alejandro Grimaldo' },
       location: [90, 70],
       play_pattern: { name: 'Regular Play' },
       pass: { end_location: [110, 42], height: { name: 'High Pass' }, ...fields },
@@ -143,6 +145,7 @@ describe('extractGoals – assists', () => {
     const [goal] = extractGoals(match, [pass({ cross: true }), assistedGoal()])
     expect(goal.assist).toEqual({
       player: 'Alejandro Grimaldo',
+      playerId: 7,
       fromX: 90,
       fromY: 70,
       toX: 110,

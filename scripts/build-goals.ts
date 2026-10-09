@@ -5,6 +5,7 @@ import { readdir, readFile, writeFile } from 'node:fs/promises'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { extractGoals } from '../src/lib/extractGoals.ts'
+import { normalizePlayerNames } from '../src/lib/playerNames.ts'
 import type { Goal, RawEvent, RawMatch } from '../src/lib/types.ts'
 
 const here = path.dirname(fileURLToPath(import.meta.url))
@@ -35,7 +36,7 @@ async function main() {
   const matches = await loadAllMatches()
   console.log(`Found ${matches.length} matches`)
 
-  const goals: Goal[] = []
+  let goals: Goal[] = []
   let missingEvents = 0
   for (const [i, match] of matches.entries()) {
     const eventsFile = path.join(DATA_DIR, 'events', `${match.match_id}.json`)
@@ -46,6 +47,9 @@ async function main() {
     goals.push(...extractGoals(match, await readJson<RawEvent[]>(eventsFile)))
     if ((i + 1) % 250 === 0) console.log(`  ${i + 1}/${matches.length} matches, ${goals.length} goals`)
   }
+
+  // One name per player, one player per name (see playerNames.ts).
+  goals = normalizePlayerNames(goals)
 
   // Newest match first; within a match, in the order the goals were scored.
   goals.sort(
