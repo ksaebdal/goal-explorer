@@ -49,11 +49,11 @@ export function FiltersBar(props: FiltersBarProps) {
           onChange={(e) => onShowMissesChange(e.target.checked)}
         />
         Show missed shots
-        {/* A visible hint (and read out with the checkbox via aria-describedby). */}
-        <span id="misses-hint" className="muted">
-          {missesAvailable ? '' : '(pick a league and a season)'}
-        </span>
       </label>
+      {/* Outside the label, so screen readers read it once - as the checkbox's description. */}
+      <span id="misses-hint" className="muted misses-hint">
+        {missesAvailable ? '' : 'Pick a league and a season to see missed shots'}
+      </span>
     </div>
   )
 }

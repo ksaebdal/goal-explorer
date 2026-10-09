@@ -85,6 +85,12 @@ function Explorer({ goals }: { goals: Shot[] }) {
     setSelectedId(null)
   }
 
+  // Switching misses off also clears the selection, so a hidden miss doesn't come back selected later.
+  const showMissesChange = (show: boolean) => {
+    setShowMisses(show)
+    setSelectedId(null)
+  }
+
   const toggleGroup = (group: OutcomeGroup) => {
     setHiddenGroups((hidden) => {
       const next = new Set(hidden) // never change state in place - make a new Set
@@ -106,6 +112,7 @@ function Explorer({ goals }: { goals: Shot[] }) {
   }, [])
 
   // Looked up in all filtered shots, so hiding a group in the legend doesn't break selecting from the table.
+  // (A selected shot stays highlighted even if its group is then hidden - you picked it on purpose.)
   const selectedShot =
     filteredGoals.find((s) => s.id === selectedId) ?? filteredMisses.find((s) => s.id === selectedId)
 
@@ -117,7 +124,7 @@ function Explorer({ goals }: { goals: Shot[] }) {
         {...options}
         showMisses={showMisses}
         missesAvailable={missesAvailable}
-        onShowMissesChange={setShowMisses}
+        onShowMissesChange={showMissesChange}
       />
       <p className="count">
         <strong>{filteredGoals.length.toLocaleString()}</strong> goals

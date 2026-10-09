@@ -36,6 +36,7 @@ h1 { margin: 0 0 4px; }
 
 .filters { display: flex; flex-wrap: wrap; gap: 12px; margin: 20px 0 8px; }
 .filters label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); }
+.misses-hint { align-self: flex-end; padding-bottom: 7px; font-size: 13px; }
 .filters label.checkbox { flex-direction: row; align-items: center; gap: 6px; align-self: flex-end; padding-bottom: 7px; color: var(--text); }
 .filters select, .filters input:not([type='checkbox']) {
   min-width: 180px; padding: 6px 8px; font: inherit; font-size: 14px;
