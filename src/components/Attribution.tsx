@@ -12,8 +12,8 @@ export function Attribution() {
     <footer className="attribution">
       {!logoMissing && <img src={LOGO} alt="StatsBomb" height={28} onError={() => setLogoMissing(true)} />}
       <p>
-        Data: <a href="https://github.com/statsbomb/open-data">StatsBomb open data</a>, used under the StatsBomb
-        Public Data User Agreement. The analysis on this page is my own and not necessarily StatsBomb's view.
+        Data: <a href="https://github.com/statsbomb/open-data">StatsBomb open data</a>, used and hosted with
+        StatsBomb's permission. The analysis on this page is my own and not necessarily StatsBomb's view.
       </p>
     </footer>
   )

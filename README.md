@@ -9,7 +9,9 @@ Browse every goal and shot in the [StatsBomb open data](https://github.com/stats
 
 Built with React, TypeScript and Vite, with unit tests in Vitest.
 
-> **This repository contains no football data.** The StatsBomb data may not be redistributed (see [Data and terms](#data-and-terms)), so you generate the app's data files yourself from your own copy of the open data.
+**Live site: https://ksaebdal.github.io/goal-explorer/** (hosted with StatsBomb's permission, see [Data and terms](#data-and-terms)).
+
+> **The `main` branch contains no football data.** The StatsBomb data may not be redistributed without their permission (see [Data and terms](#data-and-terms)), so to run the app yourself you generate its data files from your own copy of the open data.
 
 ## Getting started
 
@@ -60,7 +62,22 @@ The data terms require the StatsBomb logo on any analysis you publish based on t
 | `npm run lint` | Check the code with oxlint |
 | `npm run build` | Typecheck and build for production into `dist/` |
 
+| `npm run deploy` | Publish the site to GitHub Pages (see [Publishing the site](#publishing-the-site)) |
+
 Every push to GitHub runs the lint, tests and build automatically (`.github/workflows/ci.yml`). This needs no data and publishes nothing.
+
+## Publishing the site
+
+GitHub's servers don't have the StatsBomb data, so the site is built on your own computer and uploaded to the `gh-pages` branch, which GitHub Pages serves:
+
+```sh
+npm run build:data   # if the data files are not generated yet
+npm run deploy       # checks, tests, builds for /goal-explorer/, uploads to gh-pages
+```
+
+Before uploading, `scripts/check-deploy.ts` stops the deploy if the data files or the StatsBomb logo (`public/statsbomb-logo.png`, required by the data terms) are missing. Each deploy replaces the previous one (`--no-history`), so the repository doesn't grow by ~75 MB every time.
+
+One-time setup on GitHub: **Settings → Pages → Build and deployment → Source: Deploy from a branch → Branch: `gh-pages`, folder `/ (root)` → Save.**
 
 ## How it works
 
@@ -112,4 +129,4 @@ The football data is © StatsBomb and is used under the **StatsBomb Public Data 
 - The data itself may **not be redistributed**, reproduced, edited or provided to third parties.
 - Neither the data nor any analysis derived from it may be used **commercially**.
 
-That is why this repository contains only code, and why the app is not hosted publicly: a public site would have to serve the generated data files to every visitor. Analysis and conclusions here are my own, not necessarily StatsBomb's.
+The public site serves the generated data files to every visitor, so it is hosted **with StatsBomb's written permission**. The `main` branch still contains only code; the data and the logo exist only on the `gh-pages` branch that the deploy creates. If you fork this project, you need StatsBomb's own permission before hosting the data. Analysis and conclusions here are my own, not necessarily StatsBomb's.
