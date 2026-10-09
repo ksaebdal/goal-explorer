@@ -1,12 +1,12 @@
 import { describe, expect, it } from 'vitest'
 import { assistsOf, distanceBands, summarize, topCounts } from './stats.ts'
-import type { Assist, Goal } from './types.ts'
+import type { Assist, Shot } from './types.ts'
 
 const anAssist: Assist = { player: 'X', playerId: 1, fromX: 0, fromY: 0, toX: 1, toY: 1, kind: 'Pass', height: 'Ground Pass' }
 
 // Only the fields the stats look at matter; the rest are filled with dummies.
-function goal(distanceMeters: number, bodyPart = 'Right Foot', assist: Assist | null = null, player = 'P'): Goal {
-  return { distanceMeters, bodyPart, assist, player } as Goal
+function goal(distanceMeters: number, bodyPart = 'Right Foot', assist: Assist | null = null, player = 'P'): Shot {
+  return { distanceMeters, bodyPart, assist, player } as Shot
 }
 
 describe('summarize', () => {

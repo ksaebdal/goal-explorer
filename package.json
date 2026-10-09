@@ -6,7 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
-    "build:data": "tsx scripts/build-goals.ts",
+    "build:data": "tsx scripts/build-data.ts",
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "oxlint",

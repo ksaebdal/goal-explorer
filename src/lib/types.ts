@@ -1,6 +1,6 @@
-// The shape of one goal in our generated goals.json file.
-// We keep it "flat" (no nested objects) so it is easy to filter and display.
-export interface Goal {
+// The shape of one shot in our generated data files (goals.json and shots/*.json).
+// We keep it mostly "flat" so it is easy to filter and display.
+export interface Shot {
   id: string
   matchId: number
   competition: string
@@ -24,12 +24,21 @@ export interface Goal {
   y: number
   /** Distance from the shot location to the centre of the goal, in metres. */
   distanceMeters: number
+  /** How wide the goal looked from the shot location, in degrees (see geometry.ts). */
+  goalMouthAngle: number
+  /** Direction relative to straight-on, in degrees: 0 = in front of goal, 90 = from the byline. */
+  angleFromCentre: number
+  /** "Goal", or how it was missed: "Saved", "Blocked", "Off T", "Wayward", "Post", ... */
+  outcome: string
   bodyPart: string
   shotType: string
   technique: string
   playPattern: string
   xg: number | null
-  /** The pass that set up the goal, or null (e.g. direct free kicks, penalties, solo goals). */
+  /**
+   * The pass that set up the shot (for a goal: the assist; for a miss: the "key pass"),
+   * or null (e.g. direct free kicks, penalties, solo efforts).
+   */
   assist: Assist | null
 }
 

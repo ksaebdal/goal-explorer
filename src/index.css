@@ -4,11 +4,14 @@
   --text: #1c1f24;
   --muted: #667085;
   --border: #e3e6ea;
-  --grass: #2f7d4a;
-  --line: rgba(255, 255, 255, 0.85);
-  --dot: #ffd84d;
+  /* Pitch + shot colours, checked with the dataviz palette validator against the
+     dark pitch (all pairs, including colour-blind simulations). Same in both themes. */
+  --grass: #173d24;
+  --line: rgba(255, 255, 255, 0.7);
+  --shot-goal: #c98500;
+  --shot-saved: #3987e5;
+  --shot-missed: #d55181;
   --accent: #e5484d;
-  --assist: #3b9eff;
   font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
   color: var(--text);
   background: var(--bg);
@@ -21,7 +24,6 @@
     --text: #e8eaed;
     --muted: #9aa3ad;
     --border: #2c323a;
-    --grass: #24603a;
   }
 }
 
@@ -34,7 +36,8 @@ h1 { margin: 0 0 4px; }
 
 .filters { display: flex; flex-wrap: wrap; gap: 12px; margin: 20px 0 8px; }
 .filters label { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--muted); }
-.filters select, .filters input {
+.filters label.checkbox { flex-direction: row; align-items: center; gap: 6px; align-self: flex-end; padding-bottom: 7px; color: var(--text); }
+.filters select, .filters input:not([type='checkbox']) {
   min-width: 180px; padding: 6px 8px; font: inherit; font-size: 14px;
   color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: 6px;
 }
@@ -47,20 +50,34 @@ h1 { margin: 0 0 4px; }
 .legend { display: flex; flex-wrap: wrap; gap: 16px; margin-top: 8px; font-size: 13px; color: var(--muted); }
 .legend span { display: inline-flex; align-items: center; gap: 6px; }
 .swatch { display: inline-block; width: 10px; height: 10px; border-radius: 50%; }
-.swatch.goal { background: var(--dot); }
-.swatch.selected { background: var(--accent); }
-.swatch.assist { background: var(--assist); }
+.swatch.goal { background: var(--shot-goal); }
+.swatch.saved { background: var(--shot-saved); }
+.swatch.missed { background: var(--shot-missed); }
+.line-key { display: inline-block; width: 18px; border-top: 2px solid var(--muted); }
+.line-key.dashed { border-top-style: dashed; }
+.legend-toggle {
+  display: inline-flex; align-items: center; gap: 6px; padding: 2px 8px;
+  font: inherit; color: var(--text); background: var(--surface);
+  border: 1px solid var(--border); border-radius: 999px; cursor: pointer;
+}
+.legend-toggle[aria-pressed='false'] { opacity: 0.45; text-decoration: line-through; }
+.legend-toggle:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .pitch { width: 100%; background: var(--grass); border-radius: 8px; display: block; }
 .markings rect, .markings circle, .markings path, .markings line { fill: none; stroke: var(--line); stroke-width: 0.3; }
 .markings .spot { fill: var(--line); }
 .markings .goal { fill: var(--line); }
-.goal-dot { fill: var(--dot); fill-opacity: 0.55; cursor: pointer; }
-.goal-dot:hover { fill-opacity: 1; }
-.goal-dot.selected { fill: var(--accent); fill-opacity: 1; stroke: white; stroke-width: 0.3; }
-.assist-line { stroke: var(--assist); stroke-width: 0.5; }
-.assist-arrowhead { fill: var(--assist); }
-.assist-start { fill: var(--assist); stroke: white; stroke-width: 0.3; }
-.shot-line { stroke: var(--accent); stroke-width: 0.4; stroke-dasharray: 1 0.6; }
+.shot-dot { cursor: pointer; fill-opacity: 0.75; }
+.shot-dot:hover { fill-opacity: 1; }
+.shot-dot.goal { fill: var(--shot-goal); }
+.shot-dot.saved { fill: var(--shot-saved); fill-opacity: 0.6; }
+.shot-dot.missed { fill: var(--shot-missed); fill-opacity: 0.6; }
+/* Selected: same colour, bigger, with a white ring - so it never looks like another outcome. */
+.shot-dot.selected { fill-opacity: 1; stroke: white; stroke-width: 0.5; }
+/* The two lines are told apart by pattern (dashed vs solid), not by colour. */
+.shot-line { stroke: white; stroke-width: 0.4; stroke-dasharray: 1 0.6; }
+.assist-line { stroke: white; stroke-width: 0.5; }
+.assist-arrowhead { fill: white; }
+.assist-start { fill: none; stroke: white; stroke-width: 0.4; }
 
 .details { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 16px; }
 .details h2 { margin: 0; font-size: 18px; }

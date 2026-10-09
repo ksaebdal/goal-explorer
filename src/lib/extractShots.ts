@@ -1,7 +1,7 @@
-import { distanceToGoalMeters } from './geometry.ts'
-import type { Assist, Goal, RawEvent, RawMatch } from './types.ts'
+import { angleFromCentreDegrees, distanceToGoalMeters, goalMouthAngleDegrees } from './geometry.ts'
+import type { Assist, Shot, RawEvent, RawMatch } from './types.ts'
 
-// Period 5 is the penalty shootout. Those "goals" don't count in the score,
+// Period 5 is the penalty shootout. Those shots don't count in the score,
 // so we leave them out.
 const PENALTY_SHOOTOUT_PERIOD = 5
 
@@ -42,15 +42,15 @@ function findAssist(shot: RawEvent, eventsById: Map<string, RawEvent>): Assist |
   }
 }
 
-/** Turns one match + its events into a list of Goal objects. */
-export function extractGoals(match: RawMatch, events: RawEvent[]): Goal[] {
+/** Turns one match + its events into a list of all its shots (goals and misses). */
+export function extractShots(match: RawMatch, events: RawEvent[]): Shot[] {
   // A Map gives fast lookup by id. Searching the ~3500-event array for every goal would be slower.
   const eventsById = new Map(events.map((e) => [e.id, e]))
   return events
     .filter(
       (e) =>
         e.type.name === 'Shot' &&
-        e.shot?.outcome.name === 'Goal' &&
+        e.shot !== undefined &&
         e.period !== PENALTY_SHOOTOUT_PERIOD &&
         e.location !== undefined,
     )
@@ -79,6 +79,9 @@ export function extractGoals(match: RawMatch, events: RawEvent[]): Goal[] {
         x,
         y,
         distanceMeters: distanceToGoalMeters(x, y),
+        goalMouthAngle: goalMouthAngleDegrees(x, y),
+        angleFromCentre: angleFromCentreDegrees(x, y),
+        outcome: shot.outcome.name,
         bodyPart: shot.body_part.name,
         shotType: shot.type.name,
         technique: shot.technique.name,

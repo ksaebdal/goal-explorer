@@ -1,13 +1,13 @@
 import { memo, useMemo } from 'react'
 import { assistsOf, distanceBands, summarize, topCounts } from '../lib/stats.ts'
-import type { Goal } from '../lib/types.ts'
+import type { Shot } from '../lib/types.ts'
 import { BarChart } from './BarChart.tsx'
 import { ColumnChart } from './ColumnChart.tsx'
 
 const TOP_N = 10
 
 interface StatsPanelProps {
-  goals: Goal[]
+  goals: Shot[]
   onPickScorer: (player: string) => void
 }
 

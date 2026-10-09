@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest'
-import { availableOptions, EMPTY_FILTERS, filterGoals, uniqueValues } from './filters.ts'
-import type { Goal } from './types.ts'
+import { availableOptions, EMPTY_FILTERS, filterShots, uniqueValues } from './filters.ts'
+import type { Shot } from './types.ts'
 
-function goal(overrides: Partial<Goal>): Goal {
+function goal(overrides: Partial<Shot>): Shot {
   return {
     id: 'g',
     matchId: 1,
@@ -24,6 +24,9 @@ function goal(overrides: Partial<Goal>): Goal {
     x: 110,
     y: 40,
     distanceMeters: 9.1,
+    goalMouthAngle: 40,
+    angleFromCentre: 10,
+    outcome: 'Goal',
     bodyPart: 'Left Foot',
     shotType: 'Open Play',
     technique: 'Normal',
@@ -40,37 +43,37 @@ const goals = [
   goal({ id: 'c', competition: 'Premier League', team: 'Arsenal', player: 'Thierry Henry' }),
 ]
 
-const ids = (list: Goal[]) => list.map((g) => g.id)
+const ids = (list: Shot[]) => list.map((g) => g.id)
 
-describe('filterGoals', () => {
+describe('filterShots', () => {
   it('returns everything when no filter is set', () => {
-    expect(ids(filterGoals(goals, EMPTY_FILTERS))).toEqual(['a', 'b', 'c'])
+    expect(ids(filterShots(goals, EMPTY_FILTERS))).toEqual(['a', 'b', 'c'])
   })
 
   it('combines competition and season filters', () => {
-    const result = filterGoals(goals, { ...EMPTY_FILTERS, competition: 'La Liga', season: '2016/2017' })
+    const result = filterShots(goals, { ...EMPTY_FILTERS, competition: 'La Liga', season: '2016/2017' })
     expect(ids(result)).toEqual(['b'])
   })
 
   it('filters by team', () => {
-    expect(ids(filterGoals(goals, { ...EMPTY_FILTERS, team: 'Arsenal' }))).toEqual(['c'])
+    expect(ids(filterShots(goals, { ...EMPTY_FILTERS, team: 'Arsenal' }))).toEqual(['c'])
   })
 
   it('treats a search of only spaces as no search', () => {
-    expect(ids(filterGoals(goals, { ...EMPTY_FILTERS, playerSearch: '   ' }))).toEqual(['a', 'b', 'c'])
+    expect(ids(filterShots(goals, { ...EMPTY_FILTERS, playerSearch: '   ' }))).toEqual(['a', 'b', 'c'])
   })
 
   it('searches player names case-insensitively, ignoring surrounding spaces', () => {
-    expect(ids(filterGoals(goals, { ...EMPTY_FILTERS, playerSearch: '  HENRY ' }))).toEqual(['c'])
+    expect(ids(filterShots(goals, { ...EMPTY_FILTERS, playerSearch: '  HENRY ' }))).toEqual(['c'])
   })
 })
 
-describe('filterGoals – exact player', () => {
+describe('filterShots – exact player', () => {
   const pedros = [goal({ id: 'p', player: 'Pedro' }), goal({ id: 'n', player: 'Pedro Neto' })]
 
   it('matches only that exact name (unlike the free-text search)', () => {
-    expect(ids(filterGoals(pedros, { ...EMPTY_FILTERS, player: 'Pedro' }))).toEqual(['p'])
-    expect(ids(filterGoals(pedros, { ...EMPTY_FILTERS, playerSearch: 'Pedro' }))).toEqual(['p', 'n'])
+    expect(ids(filterShots(pedros, { ...EMPTY_FILTERS, player: 'Pedro' }))).toEqual(['p'])
+    expect(ids(filterShots(pedros, { ...EMPTY_FILTERS, playerSearch: 'Pedro' }))).toEqual(['p', 'n'])
   })
 })
 

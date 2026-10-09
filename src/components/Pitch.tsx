@@ -1,16 +1,21 @@
-import { memo, useId } from 'react'
+import { memo, useId, type ReactNode } from 'react'
 import { GOAL_CENTER, PITCH_LENGTH, PITCH_WIDTH } from '../lib/geometry.ts'
-import type { Goal } from '../lib/types.ts'
+import { outcomeGroup, outcomeLabel } from '../lib/outcomes.ts'
+import type { Shot } from '../lib/types.ts'
 
 interface PitchProps {
-  goals: Goal[]
-  selected: Goal | undefined
-  onSelect: (goal: Goal) => void
+  goals: Shot[]
+  /** Missed shots to show (empty when they are switched off). */
+  misses: Shot[]
+  selected: Shot | undefined
+  onSelect: (shot: Shot) => void
+  /** The legend shown under the pitch. */
+  children: ReactNode
 }
 
 // The SVG uses the same coordinate system as StatsBomb (120 x 80), so a
-// goal at location [108, 40] is simply drawn at x=108, y=40. No maths needed!
-export function Pitch({ goals, selected, onSelect }: PitchProps) {
+// shot at location [108, 40] is simply drawn at x=108, y=40. No maths needed!
+export function Pitch({ goals, misses, selected, onSelect, children }: PitchProps) {
   // SVG ids are global to the whole page; useId() makes ours unique.
   const arrowId = useId()
   return (
@@ -19,7 +24,7 @@ export function Pitch({ goals, selected, onSelect }: PitchProps) {
         className="pitch"
         viewBox={`-2 -2 ${PITCH_LENGTH + 4} ${PITCH_WIDTH + 4}`}
         role="img"
-        aria-label="Football pitch with goal locations. Use the table below to select goals with the keyboard."
+        aria-label="Football pitch with shot locations. Use the table below to select shots with the keyboard."
       >
         <defs>
           {/* An arrowhead that lines can use via markerEnd. */}
@@ -28,17 +33,19 @@ export function Pitch({ goals, selected, onSelect }: PitchProps) {
           </marker>
         </defs>
         <PitchMarkings />
-        <GoalDots goals={goals} onSelect={onSelect} />
+        {/* Misses first, so goals are drawn on top of them. */}
+        <ShotDots shots={misses} onSelect={onSelect} />
+        <ShotDots shots={goals} onSelect={onSelect} />
 
-        {/* The selected goal is drawn on top. pointer-events="none" lets clicks pass through to the dots below. */}
+        {/* The selected shot is drawn on top. pointer-events="none" lets clicks pass through to the dots below. */}
         {selected && (
           <g pointerEvents="none">
             {selected.assist && (
               <circle className="assist-start" cx={selected.assist.fromX} cy={selected.assist.fromY} r={0.9} />
             )}
             <line className="shot-line" x1={selected.x} y1={selected.y} x2={GOAL_CENTER.x} y2={GOAL_CENTER.y} />
-            <circle className="goal-dot selected" cx={selected.x} cy={selected.y} r={1.6} />
-            {/* Drawn after the red dot so a tap-in's arrowhead isn't hidden under it (later = on top). */}
+            <circle className={`shot-dot ${dotClass(selected)} selected`} cx={selected.x} cy={selected.y} r={1.6} />
+            {/* Drawn after the selected dot so a tap-in's arrowhead isn't hidden under it (later = on top). */}
             {selected.assist && (
               <line
                 className="assist-line"
@@ -52,23 +59,31 @@ export function Pitch({ goals, selected, onSelect }: PitchProps) {
           </g>
         )}
       </svg>
-      <figcaption className="legend">
-        <span><i className="swatch goal" /> Goal</span>
-        <span><i className="swatch selected" /> Selected goal</span>
-        <span><i className="swatch assist" /> Assist (pass)</span>
-      </figcaption>
+      <figcaption className="legend">{children}</figcaption>
     </figure>
   )
 }
 
-// memo() makes React skip redrawing all the dots unless `goals` or `onSelect`
-// actually changed. Selecting a goal only redraws the small overlay above.
-const GoalDots = memo(function GoalDots({ goals, onSelect }: Omit<PitchProps, 'selected'>) {
+/** CSS class for a shot's colour: "goal", "saved" or "missed". */
+function dotClass(shot: Shot): string {
+  return outcomeGroup(shot.outcome).toLowerCase()
+}
+
+// memo() makes React skip redrawing all the dots unless `shots` or `onSelect`
+// actually changed. Selecting a shot only redraws the small overlay above.
+const ShotDots = memo(function ShotDots({ shots, onSelect }: { shots: Shot[]; onSelect: (shot: Shot) => void }) {
   return (
     <g>
-      {goals.map((g) => (
-        <circle key={g.id} className="goal-dot" cx={g.x} cy={g.y} r={0.9} onClick={() => onSelect(g)}>
-          <title>{`${g.player} (${g.team}) – ${g.distanceMeters} m`}</title>
+      {shots.map((s) => (
+        <circle
+          key={s.id}
+          className={`shot-dot ${dotClass(s)}`}
+          cx={s.x}
+          cy={s.y}
+          r={s.outcome === 'Goal' ? 0.9 : 0.7}
+          onClick={() => onSelect(s)}
+        >
+          <title>{`${s.player} (${s.team}) – ${outcomeLabel(s.outcome)}, ${s.distanceMeters} m`}</title>
         </circle>
       ))}
     </g>

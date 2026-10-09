@@ -1,17 +1,17 @@
 import { describe, expect, it } from 'vitest'
 import { normalizePlayerNames } from './playerNames.ts'
-import type { Assist, Goal } from './types.ts'
+import type { Assist, Shot } from './types.ts'
 
 // Only the fields normalizePlayerNames looks at matter.
-function goal(player: string, playerId: number | null, matchDate: string, assist: Assist | null = null): Goal {
-  return { player, playerId, matchDate, assist } as Goal
+function goal(player: string, playerId: number | null, matchDate: string, assist: Assist | null = null): Shot {
+  return { player, playerId, matchDate, assist } as Shot
 }
 
 function assist(player: string, playerId: number | null): Assist {
   return { player, playerId, fromX: 0, fromY: 0, toX: 0, toY: 0, kind: 'Pass', height: 'Ground Pass' }
 }
 
-const names = (goals: Goal[]) => goals.map((g) => g.player)
+const names = (goals: Shot[]) => goals.map((g) => g.player)
 
 describe('normalizePlayerNames', () => {
   it('uses the most recent name for a player who appears under two names', () => {

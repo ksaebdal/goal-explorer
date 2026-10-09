@@ -1,4 +1,4 @@
-import type { Assist, Goal } from './types.ts'
+import type { Assist, Shot } from './types.ts'
 
 export interface Count {
   label: string
@@ -15,7 +15,7 @@ export interface Summary {
   headerShare: number | null
 }
 
-export function summarize(goals: Goal[]): Summary {
+export function summarize(goals: Shot[]): Summary {
   const n = goals.length
   if (n === 0) return { goals: 0, scorers: 0, averageDistanceMeters: null, assistedShare: null, headerShare: null }
   const totalDistance = goals.reduce((sum, g) => sum + g.distanceMeters, 0)
@@ -42,7 +42,7 @@ export function topCounts(values: string[], limit: number): Count[] {
  * Groups goals into distance bands (in metres): "0–5", "5–10", ... and a last
  * open band ("30+"). Every band is returned, even empty ones, so the chart keeps its shape.
  */
-export function distanceBands(goals: Goal[], bandSize = 5, lastBandStart = 30): Count[] {
+export function distanceBands(goals: Shot[], bandSize = 5, lastBandStart = 30): Count[] {
   const bandCount = lastBandStart / bandSize + 1
   const counts = new Array<number>(bandCount).fill(0)
   for (const g of goals) counts[Math.min(Math.floor(g.distanceMeters / bandSize), bandCount - 1)]++
@@ -53,6 +53,6 @@ export function distanceBands(goals: Goal[], bandSize = 5, lastBandStart = 30): 
 }
 
 /** The assists of the goals that have one (goals without an assist are skipped). */
-export function assistsOf(goals: Goal[]): Assist[] {
+export function assistsOf(goals: Shot[]): Assist[] {
   return goals.flatMap((g) => (g.assist ? [g.assist] : []))
 }

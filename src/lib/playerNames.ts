@@ -1,4 +1,4 @@
-import type { Goal } from './types.ts'
+import type { Shot } from './types.ts'
 
 // The raw data sometimes names one player in two ways ("Phil Foden" and
 // "Philip Foden", or a new surname after marriage), and two different players
@@ -14,7 +14,7 @@ interface NameSighting {
 }
 
 /** Returns the goals with scorer and assister names made consistent (see above). */
-export function normalizePlayerNames(goals: Goal[]): Goal[] {
+export function normalizePlayerNames(goals: Shot[]): Shot[] {
   const sightings: NameSighting[] = goals.flatMap((g) => [
     ...(g.playerId === null ? [] : [{ id: g.playerId, name: g.player, matchDate: g.matchDate }]),
     ...(g.assist === null || g.assist.playerId === null

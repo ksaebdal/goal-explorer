@@ -6,9 +6,14 @@ interface FiltersBarProps {
   competitions: string[]
   seasons: string[]
   teams: string[]
+  showMisses: boolean
+  /** Missed shots can only be loaded once a league and a season are picked. */
+  missesAvailable: boolean
+  onShowMissesChange: (show: boolean) => void
 }
 
-export function FiltersBar({ filters, onChange, competitions, seasons, teams }: FiltersBarProps) {
+export function FiltersBar(props: FiltersBarProps) {
+  const { filters, onChange, competitions, seasons, teams, showMisses, missesAvailable, onShowMissesChange } = props
   return (
     <div className="filters">
       <Select
@@ -35,6 +40,19 @@ export function FiltersBar({ filters, onChange, competitions, seasons, teams }: 
           value={filters.player || filters.playerSearch}
           onChange={(e) => onChange({ ...filters, playerSearch: e.target.value, player: '' })}
         />
+      </label>
+      <label className="checkbox">
+        <input
+          type="checkbox"
+          checked={showMisses}
+          aria-describedby="misses-hint"
+          onChange={(e) => onShowMissesChange(e.target.checked)}
+        />
+        Show missed shots
+        {/* A visible hint (and read out with the checkbox via aria-describedby). */}
+        <span id="misses-hint" className="muted">
+          {missesAvailable ? '' : '(pick a league and a season)'}
+        </span>
       </label>
     </div>
   )

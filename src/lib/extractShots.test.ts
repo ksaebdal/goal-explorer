@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { extractGoals } from './extractGoals.ts'
+import { extractShots } from './extractShots.ts'
 import type { RawEvent, RawMatch } from './types.ts'
 
 const match: RawMatch = {
@@ -37,9 +37,9 @@ function shot(overrides: Partial<RawEvent> = {}, outcome = 'Goal'): RawEvent {
   }
 }
 
-describe('extractGoals', () => {
-  it('turns a goal-scoring shot into a Goal with match info', () => {
-    const [goal] = extractGoals(match, [shot()])
+describe('extractShots', () => {
+  it('turns a goal-scoring shot into a Shot with match info', () => {
+    const [goal] = extractShots(match, [shot()])
     expect(goal).toEqual({
       id: 'shot-1',
       matchId: 1,
@@ -61,6 +61,9 @@ describe('extractGoals', () => {
       x: 108,
       y: 40,
       distanceMeters: 11,
+      goalMouthAngle: 36.9,
+      angleFromCentre: 0,
+      outcome: 'Goal',
       bodyPart: 'Right Foot',
       shotType: 'Open Play',
       technique: 'Normal',
@@ -70,46 +73,47 @@ describe('extractGoals', () => {
     })
   })
 
-  it('ignores shots that did not go in', () => {
-    expect(extractGoals(match, [shot({}, 'Saved'), shot({}, 'Off T')])).toEqual([])
+  it('keeps missed shots too, with their outcome', () => {
+    const shots = extractShots(match, [shot({ id: 'a' }, 'Saved'), shot({ id: 'b' }, 'Off T')])
+    expect(shots.map((s) => s.outcome)).toEqual(['Saved', 'Off T'])
   })
 
   it('ignores events that are not shots', () => {
     const pass = { ...shot(), type: { name: 'Pass' }, shot: undefined }
-    expect(extractGoals(match, [pass])).toEqual([])
+    expect(extractShots(match, [pass])).toEqual([])
   })
 
-  it('ignores penalty shootout goals (period 5)', () => {
-    expect(extractGoals(match, [shot({ period: 5 })])).toEqual([])
+  it('ignores penalty shootout shots (period 5)', () => {
+    expect(extractShots(match, [shot({ period: 5 })])).toEqual([])
   })
 
   it('handles a match without a known stadium', () => {
-    const [goal] = extractGoals({ ...match, stadium: null }, [shot()])
+    const [goal] = extractShots({ ...match, stadium: null }, [shot()])
     expect(goal.stadium).toBeNull()
   })
 
   it('keeps extra-time goals (periods 3 and 4)', () => {
-    expect(extractGoals(match, [shot({ period: 3 }), shot({ period: 4 })])).toHaveLength(2)
+    expect(extractShots(match, [shot({ period: 3 }), shot({ period: 4 })])).toHaveLength(2)
   })
 
-  it('ignores goals without a location (nothing to draw)', () => {
-    expect(extractGoals(match, [shot({ location: undefined })])).toEqual([])
+  it('ignores shots without a location (nothing to draw)', () => {
+    expect(extractShots(match, [shot({ location: undefined })])).toEqual([])
   })
 
   it('uses the team name from the match file, matched by team id', () => {
     // The events file calls the team "Leverkusen", the match file "Bayer Leverkusen".
-    const [goal] = extractGoals(match, [shot({ team: { id: 20, name: 'Leverkusen' } })])
+    const [goal] = extractShots(match, [shot({ team: { id: 20, name: 'Leverkusen' } })])
     expect(goal.team).toBe('Bayer Leverkusen')
   })
 
   it("keeps the events file's team name if the id matches neither team", () => {
-    const [goal] = extractGoals(match, [shot({ team: { id: 99, name: 'Mystery FC' } })])
+    const [goal] = extractShots(match, [shot({ team: { id: 99, name: 'Mystery FC' } })])
     expect(goal.team).toBe('Mystery FC')
   })
 
   it('falls back to defaults when player or xG is missing', () => {
     const base = shot()
-    const [goal] = extractGoals(match, [
+    const [goal] = extractShots(match, [
       { ...base, player: undefined, shot: { ...base.shot!, statsbomb_xg: undefined } },
     ])
     expect(goal.player).toBe('Unknown')
@@ -118,7 +122,7 @@ describe('extractGoals', () => {
   })
 })
 
-describe('extractGoals – assists', () => {
+describe('extractShots – assists', () => {
   // Helper that builds a pass event; `pass` fields override the defaults.
   function pass(fields: Partial<NonNullable<RawEvent['pass']>> = {}): RawEvent {
     return {
@@ -142,7 +146,7 @@ describe('extractGoals – assists', () => {
   }
 
   it('finds the assisting pass through key_pass_id', () => {
-    const [goal] = extractGoals(match, [pass({ cross: true }), assistedGoal()])
+    const [goal] = extractShots(match, [pass({ cross: true }), assistedGoal()])
     expect(goal.assist).toEqual({
       player: 'Alejandro Grimaldo',
       playerId: 7,
@@ -156,23 +160,23 @@ describe('extractGoals – assists', () => {
   })
 
   it('has no assist when the shot has no key pass (e.g. a solo goal)', () => {
-    const [goal] = extractGoals(match, [pass(), shot()])
+    const [goal] = extractShots(match, [pass(), shot()])
     expect(goal.assist).toBeNull()
   })
 
   it('has no assist when the key pass id points at something that is not a pass', () => {
     const notAPass = { ...pass(), type: { name: 'Carry' }, pass: undefined }
-    const [goal] = extractGoals(match, [notAPass, assistedGoal()])
+    const [goal] = extractShots(match, [notAPass, assistedGoal()])
     expect(goal.assist).toBeNull()
   })
 
   it("names the assister 'Unknown' if the pass has no player", () => {
-    const [goal] = extractGoals(match, [{ ...pass(), player: undefined }, assistedGoal()])
+    const [goal] = extractShots(match, [{ ...pass(), player: undefined }, assistedGoal()])
     expect(goal.assist?.player).toBe('Unknown')
   })
 
   it('has no assist when the key pass is missing from the events', () => {
-    const [goal] = extractGoals(match, [assistedGoal()])
+    const [goal] = extractShots(match, [assistedGoal()])
     expect(goal.assist).toBeNull()
   })
 
@@ -189,7 +193,7 @@ describe('extractGoals – assists', () => {
     // "Recovery" is a pass right after winning the ball - open play, not a set piece.
     [{ type: { name: 'Recovery' } }, 'Pass'],
   ])('labels pass %o as "%s"', (fields, kind) => {
-    const [goal] = extractGoals(match, [pass(fields), assistedGoal()])
+    const [goal] = extractShots(match, [pass(fields), assistedGoal()])
     expect(goal.assist?.kind).toBe(kind)
   })
 })
