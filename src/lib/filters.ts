@@ -1,0 +1,45 @@
+import type { Goal } from './types.ts'
+
+export interface GoalFilters {
+  competition: string // '' means "all"
+  season: string
+  team: string
+  playerSearch: string
+}
+
+export const EMPTY_FILTERS: GoalFilters = {
+  competition: '',
+  season: '',
+  team: '',
+  playerSearch: '',
+}
+
+export function filterGoals(goals: Goal[], filters: GoalFilters): Goal[] {
+  const search = filters.playerSearch.trim().toLowerCase()
+  return goals.filter(
+    (g) =>
+      (!filters.competition || g.competition === filters.competition) &&
+      (!filters.season || g.season === filters.season) &&
+      (!filters.team || g.team === filters.team) &&
+      (!search || g.player.toLowerCase().includes(search)),
+  )
+}
+
+/** Sorted list of the distinct values of one field, e.g. all team names. */
+export function uniqueValues(goals: Goal[], field: 'competition' | 'season' | 'team'): string[] {
+  return [...new Set(goals.map((g) => g[field]))].sort((a, b) => a.localeCompare(b))
+}
+
+/**
+ * The choices each dropdown should offer. Each one only lists values that
+ * exist given the choices above it (league → season → team).
+ */
+export function availableOptions(goals: Goal[], filters: GoalFilters) {
+  const inCompetition = filterGoals(goals, { ...EMPTY_FILTERS, competition: filters.competition })
+  const inSeason = filterGoals(inCompetition, { ...EMPTY_FILTERS, season: filters.season })
+  return {
+    competitions: uniqueValues(goals, 'competition'),
+    seasons: uniqueValues(inCompetition, 'season'),
+    teams: uniqueValues(inSeason, 'team'),
+  }
+}
